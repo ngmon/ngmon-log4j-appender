@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 
 /**
  *
- * @author Stefan
+ * @author Stefan Uhercik
  */
 public class JsonLogger {
 
