@@ -15,7 +15,7 @@ import org.codehaus.jackson.JsonGenerator;
 
 /**
  *
- * @author Stefan
+ * @author Stefan Uhercik
  */
 public class JsonLogger {
 
