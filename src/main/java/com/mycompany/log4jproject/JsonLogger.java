@@ -4,9 +4,12 @@
  */
 package com.mycompany.log4jproject;
 
+import java.io.StringWriter;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
 
 
 
@@ -23,9 +26,8 @@ public class JsonLogger {
     }
     
     public void logJson(String type,int severity, int priority){
-        String outputString = "{" + "\"type\":" + type + ",\"severity\":" + severity + ",\"priority\":" + priority + "}";
-        logger.log(Level.DEBUG, outputString);
-        System.out.println("this was done");
+        String outputString = "{" + "\"type\":\"" + type + "\",\"severity\":" + severity + ",\"priority\":" + priority + "}";
+        logger.log(Level.DEBUG,outputString);
     }
     
     public void logJson(String message){
