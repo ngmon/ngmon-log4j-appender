@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class Log4j2Expr {
     public static void main(String[] args) {
+
      
         Logger l = LogManager.getLogger("L");
         l.fatal(" the message");
