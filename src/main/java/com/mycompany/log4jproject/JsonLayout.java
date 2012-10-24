@@ -92,7 +92,7 @@ public class JsonLayout extends Layout {
         }
     }
     
-    private String convertMillisToISO8601(long millis){
+    public String convertMillisToISO8601(long millis){
         DateFormat ISO_8601_DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
         Date date = new Date(millis);
         String outputString = ISO_8601_DATE_TIME.format(date);

@@ -49,12 +49,12 @@ public class JsonLoggerTest extends TestCase {
      * Test of logJson method, of class JsonLogger.
      */
     @org.junit.Test
-    public void testLogJson_3args() {               
+    public void testLogJson3args() {               
         String type = "asd";
         int severity = 5;
         int priority = 11;
         
-        String expectedString = "{" + "\"type\":" + type + ",\"severity\":" + severity + ",\"priority\":" + priority + "}";
+        String expectedString = "{" + "\"type\":\"" + type + "\",\"severity\":" + severity + ",\"priority\":" + priority + "}";
         try {
             //attaching FileAppender to logger
             FileAppender appender = new FileAppender(new PatternLayout("%m%n"), filePath);
@@ -74,6 +74,9 @@ public class JsonLoggerTest extends TestCase {
             }
             String lastLine = previousLine;
             
+            System.out.println(expectedString);
+            System.out.println(lastLine);
+            
             assertEquals(expectedString,lastLine);
         }
         catch (IOException ex) {        
@@ -85,14 +88,13 @@ public class JsonLoggerTest extends TestCase {
      * Test of logJson method, of class JsonLogger.
      */
     @org.junit.Test
-    public void testLogJson_String() {
-        String message = "{\"type\":asdf,\"severity\":1,\"priority\":2}";
-                
+    public void testLogJsonString() {
+        String message = "{\"type\":\"asdf\",\"severity\":1,\"priority\":2}";
         try {
             //attaching FileAppender to logger
             FileAppender appender = new FileAppender(new PatternLayout("%m%n"), filePath);
             testingLogger.addAppender(appender);
-            testingLogger.logJson("{\"type\":asdf,\"severity\":1,\"priority\":2}");        
+            testingLogger.logJson(message);        
             
             //browsing the log file to till we get last line, what should be our record
             FileInputStream fileIS = new FileInputStream(filePath);
@@ -109,6 +111,17 @@ public class JsonLoggerTest extends TestCase {
             assertEquals( message, lastLine);        
         } catch (IOException ex) {
             fail("problem while accessing file");
+        }
+    }
+   
+    @org.junit.Test
+    public void testLogJsonStringWrongParam(){
+        String wrongJson = "{\"severity\":6}";
+        try{
+            testingLogger.logJson(wrongJson);
+            fail("illegalargumentexception wasn't thrown");
+        }catch(IllegalArgumentException e){
+            //good
         }
     }
 

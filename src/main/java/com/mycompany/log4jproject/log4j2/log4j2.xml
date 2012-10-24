@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="DEBUG">
+    <appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="MY CONFIG: [%t] %logger{36} - %msg%n"/>
+        </Console>
+    </appenders>
+    <loggers>
+        <root level="error">
+            <appender-ref ref="Console"/>
+        </root>
+        <logger level="debug" name="L">
+            <apppender-ref ref="Console"/>
+        </logger>
+    </loggers>
+</configuration>
