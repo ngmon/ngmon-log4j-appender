@@ -16,7 +16,6 @@ public class Log4j2Expr {
 
      
         Logger l = LogManager.getLogger("L");
-        l.fatal(" the message");
-        
+        l.fatal("interesting message");
     }
 }
