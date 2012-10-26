@@ -23,6 +23,7 @@ import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.util.ISO8601Utils;
 
 /**
  *
@@ -96,6 +97,7 @@ public class JsonLayout extends Layout {
         DateFormat ISO_8601_DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
         Date date = new Date(millis);
         String outputString = ISO_8601_DATE_TIME.format(date);
+
         return outputString;        
     }
 }
