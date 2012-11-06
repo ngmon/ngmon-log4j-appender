@@ -1,42 +1,26 @@
-{"Event":{
-	"occurrenceTime":"2012-10-12T03:44:52.713+0000",
-	"type":"org.linux.cron.Started",
-	"application":"Cron",
-	"process":"cron",
-	"processId":"4219",
-	"level":5,
-	"payload":[
-		{
-			"http://log4j.org/1.0/events.jsch":{
-				"exceptionclass":"java.net.NoRouteToHostException",
-				"stack":[
-					"java.net.NoRouteToHostException: that box caught fire 3 years ago",
-					"\tat org.apache.hadoop.log.TestLog4Json.testException(TestLog4Json.java:49)",
-					"\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)",
-					"\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)",
-					"\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)",
-					"\tat java.lang.reflect.Method.invoke(Method.java:597)",
-					"\tat junit.framework.TestCase.runTest(TestCase.java:168)",
-					"\tat junit.framework.TestCase.runBare(TestCase.java:134)",
-					"\tat junit.framework.TestResult$1.protect(TestResult.java:110)",
-					"\tat junit.framework.TestResult.runProtected(TestResult.java:128)",
-					"\tat junit.framework.TestResult.run(TestResult.java:113)",
-					"\tat junit.framework.TestCase.run(TestCase.java:124)",
-					"\tat junit.framework.TestSuite.runTest(TestSuite.java:232)",
-					"\tat junit.framework.TestSuite.run(TestSuite.java:227)",
-					"\tat org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)",
-					"\tat org.apache.maven.surefire.junit4.JUnit4TestSet.execute(JUnit4TestSet.java:59)",
-					"\tat org.apache.maven.surefire.suite.AbstractDirectoryTestSuite.executeTestSet(AbstractDirectoryTestSuite.java:120)",
-					"\tat org.apache.maven.surefire.suite.AbstractDirectoryTestSuite.execute(AbstractDirectoryTestSuite.java:145)",
-					"\tat org.apache.maven.surefire.Surefire.run(Surefire.java:104)",
-					"\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)",
-					"\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)",
-					"\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)",
-					"\tat java.lang.reflect.Method.invoke(Method.java:597)",
-					"\tat org.apache.maven.surefire.booter.SurefireBooter.runSuitesInProcess(SurefireBooter.java:290)",
-					"\tat org.apache.maven.surefire.booter.SurefireBooter.main(SurefireBooter.java:1017)"
-				]
-			}
-		}
-	]
-}}
+{
+    "Event":{
+        "occurrenceTime":"2012-10-12T03:44:52.713+0000",
+        "type":"org.linux.cron.Started",
+        "application":"Cron",
+        "process":"cron",
+        "processId":"4219",
+        "level":5,
+        "payload":
+        [
+            {
+                "http://log4j.org/1.0/events.jsch":
+                {
+                    "exceptionclass":"java.net.NoRouteToHostException",
+                    "stack":[
+                    "java.net.NoRouteToHostException: that box caught fire 3 years ago",
+                    "\tat org.apache.hadoop.log.TestLog4Json.testException(TestLog4Json.java:49)",
+                    "\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)",
+                    "\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)",
+                    "\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)",
+                    ]
+                }
+            }
+        ]
+    }
+}
