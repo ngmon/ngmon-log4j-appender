@@ -1,0 +1,4 @@
+{"type":"fast","payload":[{"param1":"value1"},{"param2":12}]}
+{"type":"fast","payload":[{"param1":"value1"},{"param2":12}]}
+{"type":"fast","payload":[{"param1":"value1"},{"param2":12}]}
+{"type":"fast","payload":[{"param1":"value1"},{"param2":12}]}

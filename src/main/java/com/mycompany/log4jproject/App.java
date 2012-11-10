@@ -31,13 +31,12 @@ public class App {
 
         String filePath = "C:\\Users\\Stefan\\Desktop\\School Projects\\Bachelor thesis\\Log4jProject\\src\\main\\java\\com\\mycompany\\log4jproject\\newfile.txt";
   
-        Log4JSONImpl log = new Log4JSONImpl("l");
-        
         NewJsonLayout layout = new NewJsonLayout();
         
         FileAppender appender = new FileAppender(layout,filePath);
         
-        log.addAppender(appender);
+        Log4JSON log = new Log4JSONImpl("l",appender);
+        
         
         Map<String,Object> map = new HashMap<String,Object>();
         map.put("xx","yy");

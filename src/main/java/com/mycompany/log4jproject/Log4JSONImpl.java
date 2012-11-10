@@ -19,56 +19,55 @@ import org.codehaus.jackson.JsonGenerator;
  *
  * @author Stefan
  */
-public class Log4JSONImpl implements Log4JSON
-{
-    
+public class Log4JSONImpl implements Log4JSON {
+
     private Logger logger;
 
-    public Log4JSONImpl(String loggerName) {
+    public Log4JSONImpl(String loggerName, Appender appender) {
         this.logger = Logger.getLogger(loggerName);
-    }
-    
-    public void addAppender(Appender appender){
         this.logger.addAppender(appender);
     }
-    
-    public void log(String type, Level level, Map<String, Object> payload) { 
+
+    public void log(String type, Level level, Map<String, Object> payload) {
+
+        if(level==null) throw new IllegalArgumentException("no level specified");
         
         StringWriter writer = new StringWriter();
         JsonFactory factory = new JsonFactory();
-        
+
         try {
             JsonGenerator gen = factory.createJsonGenerator(writer);
             gen.writeStartObject();
-           
-            gen.writeStringField("type",type);
-            gen.writeStringField("level", level.toString());
+
+            gen.writeStringField("type", type);
             gen.writeArrayFieldStart("payload");
-            
-            Set<String> set = payload.keySet();
-            
-            for(String s:set){
+            for (Map.Entry<String, Object> entry : payload.entrySet()) {
+
+
                 gen.writeStartObject();
-                gen.writeStringField(s,(String)payload.get(s));
+                if (entry.getValue() instanceof String) {
+                    gen.writeStringField(entry.getKey(), (String) entry.getValue());
+                } else {
+                    gen.writeNumberField(entry.getKey(), (Integer) entry.getValue());
+                }
                 gen.writeEndObject();
+
             }
-            
+
             gen.writeEndArray();
-            
+
             gen.writeEndObject();
             gen.close();
             writer.append((CharSequence) "\n");
-        } catch(IOException e){
+        } catch (IOException e) {
             System.out.println("problem while creating JsonGenerator, writing or while closing JsonGenerator");
         }
-        
-        
-        this.logger.log(Level.INFO,writer.toString());    
-        
+
+        this.logger.log(level, writer.toString());
+
     }
 
     public void log(String type, Level level, Object... variables) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
 }
