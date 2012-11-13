@@ -5,8 +5,10 @@
 package com.mycompany.log4jproject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -29,8 +31,8 @@ import static org.junit.Assert.*;
  */
 public class Log4JSONTest {
 
-    
-    private class UnsupportedObject{
+    private class UnsupportedObject {
+
         private String stringAttr;
         private int intAttr;
 
@@ -55,21 +57,11 @@ public class Log4JSONTest {
             this.intAttr = intAttr;
         }
     }
-    
     private Log4JSON log4JSON;
     private String filePath = "C:\\Users\\Stefan\\Desktop\\School Projects\\Bachelor thesis\\Log4jProject\\src\\test\\java\\com\\mycompany\\log4jproject\\testingOutput.txt";
 
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-
+    
+    public Log4JSONTest(){
         PatternLayout layout = new PatternLayout("%m");
 
         FileAppender appender = null;
@@ -81,79 +73,98 @@ public class Log4JSONTest {
 
         log4JSON = new Log4JSONImpl("l", appender);
     }
+    
+    @BeforeClass
+    public static void setUpClass() {
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+    }
+
+    @Before
+    public void setUp() {
+    }
 
     @After
     public void tearDown() {
     }
+    
+    
+    @Test
+    public void testLogWithNonexistingLevel() {
+        try {
+            log4JSON.log("type", null, new HashMap<String, Object>());
+            fail("exception wasn't thrown");
+        } catch (IllegalArgumentException e) {
+            //correct;
+        }
+    }
 
+    
+    @Test
+    public void testLogWithUnsupportedDataTypeInPayload() {
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("strangeParam", new UnsupportedObject("abc", 15));
+        try {
+            log4JSON.log("type", null, map);
+            fail("exception wasn't thrown");
+        } catch (IllegalArgumentException e) {
+            //correct
+        }
+    }
+    
+    
     @Test
     public void testLogCorrectParams() {
 
         String type = "fast";
         Level level = Level.DEBUG;
-        Map<String,Object> map = new HashMap<String, Object>();
-        map.put("param1", "value1");
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("param1", "xyz");
         map.put("param2", new Integer(12));
-        
+
         log4JSON.log(type, Level.DEBUG, map);
 
-        String expectedString = "{" + "\"type\":\"" + type +
-                "\",\"payload\":["+
-                "{\"param1\":\"value1\"},"+
-                "{\"param2\":12}"+
-                "]}";
+        String expectedString = "{" + "\"type\":\"" + type
+                + "\",\"payload\":["
+                + "{\"param1\":\"xyz\"},"
+                + "{\"param2\":12}"
+                + "]}";
+
+        String lastLine = getLastLineFrom(filePath);
+        assertEquals(expectedString, lastLine);
+
+    }
+
+    private String getLastLineFrom(String filepath) {
+
+        FileReader fileRead = null;
+        BufferedReader buReader = null;
+        File rFile = null;
+        String lastLine = null;
+
         try {
-
-            String lastLine = getLastLineFrom(filePath);   
-            
-            assertEquals(expectedString, lastLine);
-        } catch (IOException ex) {
-            fail("problem while accessing file");
+            rFile = new File(filePath);
+            fileRead = new FileReader(rFile);
+            buReader = new BufferedReader(fileRead);
+            String line = null;
+            String previousLine = null;
+            while ((line = buReader.readLine()) != null) {
+                previousLine = line;
+            }
+            lastLine = previousLine;
+        } catch (IOException e) {
+            System.out.println("Problem while initializing readers or while reading file");
+        } finally {
+            try {
+                fileRead.close();
+                buReader.close();
+            } catch (IOException ioe) {
+                System.out.println("Problem while closing readers");
+            }
         }
-
-    }
-
-    @Test
-    public void testLogWithNonexistingLevel() {
-        try{
-            log4JSON.log("type",null,new HashMap<String,Object>());
-            fail("exception wasn't thrown");
-        }
-        catch(IllegalArgumentException e){
-            //correct;
-        }
-    }
-
-    @Test
-    public void testLogWithUnsupportedDataTypeInPayload() {
-        
-        Map<String,Object> map = new HashMap<String,Object>();
-        map.put("strangeParam", new UnsupportedObject("abc",15));
-        try{
-            log4JSON.log("type",null,new HashMap<String,Object>());
-            fail("exception wasn't thrown");
-        }catch(IllegalArgumentException e){
-            //correct
-        }
-    }
-
-
-    @Test
-    public void testLogWithNullEntryInPayload() {
-    }
-
-    private String getLastLineFrom(String filepath) throws FileNotFoundException, IOException {
-        FileInputStream fileIS = new FileInputStream(filePath);
-        InputStreamReader isReader = new InputStreamReader(fileIS);
-        BufferedReader br = new BufferedReader(isReader);
-
-        String line = null;
-        String previousLine = null;
-        while ((line = br.readLine()) != null) {
-            previousLine = line;
-        }
-        String lastLine = previousLine;
-        
         return lastLine;
     }
 }
