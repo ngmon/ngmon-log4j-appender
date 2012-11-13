@@ -1,22 +1,19 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership. The ASF
+ * licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
-
-
 package com.mycompany.log4jproject;
 
 import org.apache.log4j.Layout;
@@ -35,28 +32,29 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * This offers a log layout for JSON, with some test entry points. It's purpose is
- * to allow Log4J to generate events that are easy for other programs to parse, but which are somewhat
- * human-readable.
+ * This offers a log layout for JSON, with some test entry points. It's purpose
+ * is to allow Log4J to generate events that are easy for other programs to
+ * parse, but which are somewhat human-readable.
  *
  * Some features.
  *
- * <ol>
- *     <li>Every event is a standalone JSON clause</li>
- *     <li>Time is published as a time_t event since 1/1/1970
- *      -this is the fastest to generate.</li>
- *     <li>An ISO date is generated, but this is cached and will only be accurate to within a second</li>
- *     <li>the stack trace is included as an array</li>
- * </ol>
+ * <ol> <li>Every event is a standalone JSON clause</li> <li>Time is published
+ * as a time_t event since 1/1/1970 -this is the fastest to generate.</li>
+ * <li>An ISO date is generated, but this is cached and will only be accurate to
+ * within a second</li> <li>the stack trace is included as an array</li> </ol>
  *
  * A simple log event will resemble the following
  * <pre>
  *     {"name":"test","time":1318429136789,"date":"2011-10-12 15:18:56,789","level":"INFO","thread":"main","message":"test message"}
  * </pre>
  *
- * An event with an error will contain data similar to that below (which has been reformatted to be multi-line).
+ * An event with an error will contain data similar to that below (which has
+ * been reformatted to be multi-line).
  *
  * <pre>
  *     {
@@ -97,167 +95,178 @@ import java.util.Date;
  *     }
  * </pre>
  */
-
 public class HadoopLog4Json extends Layout {
 
-  /**
-   * Jackson factories are thread safe when constructing parsers and generators.
-   * They are not thread safe in configure methods; if there is to be any
-   * configuration it must be done in a static intializer block.
-   */
-  private static final JsonFactory factory = new MappingJsonFactory();
-  public static final String DATE = "date";
-  public static final String EXCEPTION_CLASS = "exceptionclass";
-  public static final String LEVEL = "level";
-  public static final String MESSAGE = "message";
-  public static final String NAME = "name";
-  public static final String STACK = "stack";
-  public static final String THREAD = "thread";
-  public static final String TIME = "time";
-  public static final String JSON_TYPE = "application/json";
-
-  private final DateFormat dateFormat;
-
-  public HadoopLog4Json() {
-    dateFormat = new ISO8601DateFormat();
-  }
-
-
-  /**
-   * @return the mime type of JSON
-   */
-  @Override
-  public String getContentType() {
-    return JSON_TYPE;
-  }
-
-  @Override
-  public String format(LoggingEvent event) {
-    try {
-      return toJson(event);
-    } catch (IOException e) {
-      //this really should not happen, and rather than throw an exception
-      //which may hide the real problem, the log class is printed
-      //in JSON format. The classname is used to ensure valid JSON is 
-      //returned without playing escaping games
-      return "{ \"logfailure\":\"" + e.getClass().toString() + "\"}";
+    /**
+     * Jackson factories are thread safe when constructing parsers and
+     * generators. They are not thread safe in configure methods; if there is to
+     * be any configuration it must be done in a static intializer block.
+     */
+    private static final JsonFactory factory = new MappingJsonFactory();
+    public static final String JSON_TYPE = "application/json";
+    public static final String OCCURENCE_TIME = "occurenceTime";
+    public static final String APPLICATION = "application";
+    public static final String LEVEL = "level";
+    public static final String PROCESS = "process";
+    public static final String PROCESS_ID = "processId";
+    public static final String TYPE = "type";
+    public static final String PAYLOAD = "payload";
+    public static final String EVENT = "Event";
+    private final DateFormat dateFormat;
+    
+    
+    public HadoopLog4Json() {
+        dateFormat = new ISO8601DateFormat();
     }
-  }
+    
 
-  /**
-   * Convert an event to JSON
-   *
-   * @param event the event -must not be null
-   * @return a string value
-   * @throws java.io.IOException on problems generating the JSON
-   */
-  public String toJson(LoggingEvent event) throws IOException {
-    StringWriter writer = new StringWriter();
-    toJson(writer, event);
-    return writer.toString();
-  }
-
-  /**
-   * Convert an event to JSON
-   *
-   * @param writer the destination writer
-   * @param event the event -must not be null
-   * @return the writer
-   * @throws java.io.IOException on problems generating the JSON
-   */
-  public Writer toJson(final Writer writer, final LoggingEvent event)
-      throws IOException {
-    ThrowableInformation ti = event.getThrowableInformation();
-    toJson(writer,
-           event.getLoggerName(),
-           event.getTimeStamp(),
-           event.getLevel().toString(),
-           event.getThreadName(),
-           event.getRenderedMessage(),
-           ti);
-    return writer;
-  }
-
-  /**
-   * Build a JSON entry from the parameters. This is public for testing.
-   *
-   * @param writer destination
-   * @param loggerName logger name
-   * @param timeStamp time_t value
-   * @param level level string
-   * @param threadName name of the thread
-   * @param message rendered message
-   * @param ti nullable thrown information
-   * @return the writer
-   * @throws java.io.IOException on any problem
-   */
-  public Writer toJson(final Writer writer,
-                       final String loggerName,
-                       final long timeStamp,
-                       final String level,
-                       final String threadName,
-                       final String message,
-                       final ThrowableInformation ti) throws IOException {
-    JsonGenerator json = factory.createJsonGenerator(writer);
-    json.writeStartObject();
-    json.writeStringField(NAME, loggerName);
-    json.writeNumberField(TIME, timeStamp);
-    Date date = new Date(timeStamp);
-    json.writeStringField(DATE, dateFormat.format(date));
-    json.writeStringField(LEVEL, level);
-    json.writeStringField(THREAD, threadName);
-    json.writeStringField(MESSAGE, message);
-    if (ti != null) {
-      //there is some throwable info, but if the log event has been sent over the wire,
-      //there may not be a throwable inside it, just a summary.
-      Throwable thrown = ti.getThrowable();
-      String eclass = (thrown != null) ?
-          thrown.getClass().getName()
-          : "";
-      json.writeStringField(EXCEPTION_CLASS, eclass);
-      String[] stackTrace = ti.getThrowableStrRep();
-      json.writeArrayFieldStart(STACK);
-      for (String row : stackTrace) {
-        json.writeString(row);
-      }
-      json.writeEndArray();
+    /**
+     * @return the mime type of JSON
+     */
+    @Override
+    public String getContentType() {
+        return JSON_TYPE;
     }
-    json.writeEndObject();
-    json.flush();
-    json.close();
-    return writer;
-  }
 
-  /**
-   * This appender does not ignore throwables
-   *
-   * @return false, always
-   */
-  @Override
-  public boolean ignoresThrowable() {
-    return false;
-  }
-
-  /**
-   * Do nothing
-   */
-  @Override
-  public void activateOptions() {
-  }
-
-  /**
-   * For use in tests
-   *
-   * @param json incoming JSON to parse
-   * @return a node tree
-   * @throws java.io.IOException on any parsing problems
-   */
-  public static ContainerNode parse(String json) throws IOException {
-    ObjectMapper mapper = new ObjectMapper(factory);
-    JsonNode jsonNode = mapper.readTree(json);
-    if (!(jsonNode instanceof ContainerNode)) {
-      throw new IOException("Wrong JSON data: " + json);
+    @Override
+    public String format(LoggingEvent event) {
+        try {
+            return toJson(event);
+        } catch (IOException e) {
+            //this really should not happen, and rather than throw an exception
+            //which may hide the real problem, the log class is printed
+            //in JSON format. The classname is used to ensure valid JSON is 
+            //returned without playing escaping games
+            return "{ \"logfailure\":\"" + e.getClass().toString() + "\"}";
+        }
     }
-    return (ContainerNode) jsonNode;
-  }
+
+    /**
+     * Convert an event to JSON
+     *
+     * @param event the event -must not be null
+     * @return a string value
+     * @throws java.io.IOException on problems generating the JSON
+     */
+    public String toJson(LoggingEvent event) throws IOException {
+        StringWriter writer = new StringWriter();
+        toJson(writer, event);
+        return writer.toString();
+    }        
+        
+        
+    /**
+     * Convert an event to JSON
+     *
+     * @param writer the destination writer
+     * @param event the event -must not be null
+     * @return the writer
+     * @throws java.io.IOException on problems generating the JSON
+     */
+    public Writer toJson(final Writer writer, final LoggingEvent event)
+            throws IOException {
+        
+        MyEvent myEvent = (MyEvent) event.getMessage();
+        
+        toJson(writer,
+                event.getLevel().toString(),
+                myEvent.getType(),
+                event.getTimeStamp(),
+                "app",
+                "proc",
+                "procId",
+                myEvent.getPayload());
+        
+        return writer;
+    }    
+    
+    
+    /**
+     * Build a JSON entry from the parameters. This is public for testing.
+     *
+     * @param writer destination
+     * @param level level
+     * @param type type
+     * @param timeStamp timestamp
+     * @param application application
+     * @param process process
+     * @param processId processId
+     * @return writer
+     * @throws IOException
+     */
+    public Writer toJson(final Writer writer,
+            final String level,
+            final String type,
+            final long timeStamp,
+            final String application,
+            final String process,
+            final String processId,
+            final Map<String, Object> payload) throws IOException {
+        
+        JsonGenerator json = factory.createJsonGenerator(writer);
+        json.writeStartObject();
+        json.writeFieldName(EVENT);
+        json.writeStartObject();
+        json.writeStringField(LEVEL, level);
+        json.writeStringField(TYPE, type);
+        Date date = new Date(timeStamp);
+        json.writeStringField(OCCURENCE_TIME, dateFormat.format(date));
+        json.writeStringField(APPLICATION, application);
+        json.writeStringField(PROCESS, process);
+        json.writeStringField(PROCESS_ID, processId);
+        json.writeArrayFieldStart(PAYLOAD);
+        
+        for (Map.Entry<String, Object> entry : payload.entrySet()) {
+            json.writeStartObject();
+            if(entry.getValue() instanceof String) {
+                json.writeStringField(entry.getKey(), (String) entry.getValue());
+            }
+            else {
+                System.out.println("the value is: "+entry.getValue());
+                json.writeNumberField(entry.getKey(), (Integer) entry.getValue());
+            }
+            json.writeEndObject();
+        }
+        
+        json.writeEndArray();
+        json.writeEndObject();
+        json.writeEndObject();
+        json.flush();        
+        json.close();
+        writer.append('\n');
+        return writer;
+    }
+
+    /**
+     * This appender does not ignore throwables
+     *
+     * @return false, always
+     */
+    @Override
+    public boolean ignoresThrowable() {
+        return false;
+    }
+
+    /**
+     * Do nothing
+     */
+    @Override
+    public void activateOptions() {
+    }
+
+    /**
+     * For use in tests
+     *
+     * @param json incoming JSON to parse
+     * @return a node tree
+     * @throws java.io.IOException on any parsing problems
+     */
+    public static ContainerNode parse(String json) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(factory);
+        JsonNode jsonNode = mapper.readTree(json);
+        if (!(jsonNode instanceof ContainerNode)) {
+            throw new IOException("Wrong JSON data: " + json);
+        }
+        return (ContainerNode) jsonNode;
+    }
 }
