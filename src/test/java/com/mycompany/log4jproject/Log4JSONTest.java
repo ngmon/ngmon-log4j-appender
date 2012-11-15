@@ -14,7 +14,10 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.log4j.FileAppender;
+import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.SimpleLayout;
@@ -57,14 +60,14 @@ public class Log4JSONTest {
             this.intAttr = intAttr;
         }
     }
-    private Log4JSON log4JSON;
-    private String filePath = "C:\\Users\\Stefan\\Desktop\\School Projects\\Bachelor thesis\\Log4jProject\\src\\test\\java\\com\\mycompany\\log4jproject\\testingOutput.txt";
+    private static Log4JSON log4JSON;
+    private static String filePath = "src\\test\\java\\com\\mycompany\\log4jproject\\testingOutput.txt";
+    private static Layout layout;
+    private static FileAppender appender;
 
-    
-    public Log4JSONTest(){
-        PatternLayout layout = new PatternLayout("%m");
-
-        FileAppender appender = null;
+    @BeforeClass
+    public static void setUpClass() {
+        layout = new HadoopLog4Json();
         try {
             appender = new FileAppender(layout, filePath);
         } catch (IOException ex) {
@@ -72,10 +75,6 @@ public class Log4JSONTest {
         }
 
         log4JSON = new Log4JSONImpl("l", appender);
-    }
-    
-    @BeforeClass
-    public static void setUpClass() {
     }
 
     @AfterClass
@@ -89,8 +88,7 @@ public class Log4JSONTest {
     @After
     public void tearDown() {
     }
-    
-    
+
     @Test
     public void testLogWithNonexistingLevel() {
         try {
@@ -101,7 +99,6 @@ public class Log4JSONTest {
         }
     }
 
-    
     @Test
     public void testLogWithUnsupportedDataTypeInPayload() {
 
@@ -114,8 +111,7 @@ public class Log4JSONTest {
             //correct
         }
     }
-    
-    
+
     @Test
     public void testLogCorrectParams() {
 
@@ -126,17 +122,30 @@ public class Log4JSONTest {
         map.put("param2", new Integer(12));
 
         log4JSON.log(type, Level.DEBUG, map);
-
-        String expectedString = "{" + "\"type\":\"" + type
-                + "\",\"payload\":["
-                + "{\"param1\":\"xyz\"},"
-                + "{\"param2\":12}"
-                + "]}";
-
+        
+        String expectedStringBegin = "\\{\"Event\":\\{\"level\":\"DEBUG\",\"type\":\"fast\",\"occurenceTime\":\"";
+        String expectedStringEnd =  "\",\"application\":\"app\",\"process\":\"proc\",\"processId\":\"procId\",\"payload\":\\[\\{\"param1\":\"xyz\"\\},\\{\"param2\":12\\}\\]\\}\\}";
+        
+        String expectedString = expectedStringBegin + ".*" + expectedStringEnd;
+        
         String lastLine = getLastLineFrom(filePath);
-        assertEquals(expectedString, lastLine);
+        Pattern p = Pattern.compile(expectedString);
+        Matcher m = p.matcher(lastLine);
+        boolean matches = m.matches();
+        
+        
+
+        
+        
+        System.out.println(expectedString);
+        System.out.println(lastLine);
+        
+        
+        assertTrue(matches);
 
     }
+   
+    
 
     private String getLastLineFrom(String filepath) {
 

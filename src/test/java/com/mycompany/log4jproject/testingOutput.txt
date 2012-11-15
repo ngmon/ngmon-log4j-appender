@@ -1,1 +1,0 @@
-{"Event":{"level":"DEBUG","type":"hello world","time":"2012-11-13 13:47:42,439","application":"app","process":"proc","processId":"procId","payload":[]}}
