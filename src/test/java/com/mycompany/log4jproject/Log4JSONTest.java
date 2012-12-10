@@ -61,7 +61,7 @@ public class Log4JSONTest {
         }
     }
     private static Log4JSON log4JSON;
-    private static String filePath = "src\\test\\java\\com\\mycompany\\log4jproject\\testingOutput.txt";
+    private static String filePath = "testingOutput.txt";
     private static Layout layout;
     private static FileAppender appender;
 
