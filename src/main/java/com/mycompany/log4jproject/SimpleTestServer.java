@@ -17,6 +17,7 @@
  */
 package com.mycompany.log4jproject;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,39 +29,12 @@ import org.newsclub.net.unix.AFUNIXSocketAddress;
 
 /**
  * A simple demo server
- *
+ * 
  * @author Christian Kohlschütter
  * @see SimpleTestClient
  */
 public class SimpleTestServer {
-
-    public static void main(String[] args) throws IOException {
-        final File socketFile = new File(new File(System.getProperty("java.io.tmpdir")), "junixsocket-test.sock");
-
-        AFUNIXServerSocket server = AFUNIXServerSocket.newInstance();
-        server.bind(new AFUNIXSocketAddress(socketFile));
-        System.out.println("server: " + server);
-
-        while (!Thread.interrupted()) {
-            System.out.println("Waiting for connection...");
-            Socket sock = server.accept();
-            System.out.println("Connected: " + sock);
-
-            InputStream is = sock.getInputStream();
-            OutputStream os = sock.getOutputStream();
-
-            System.out.println("Saying hello to client " + os);
-            os.write("Hello, dear Client".getBytes());
-            os.flush();
-
-            byte[] buf = new byte[128];
-            int read = is.read(buf);
-            System.out.println("Client's response: " + new String(buf, 0, read));
-
-            os.close();
-            is.close();
-
-            sock.close();
-        }
+    public static void main(String[] args) throws IOException {         
+        System.out.println("hello world");
     }
 }
